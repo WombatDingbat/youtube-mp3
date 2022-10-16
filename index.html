@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>YouTube - mp3</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+</head>
+<body>
+    <div class="first-page-bg">
+        <div class="first-page-dim">
+            <header>
+                <h1>YouTube MP3</h1>
+            </header>
+            <div class="user">
+                <box-icon class="user-icon" name='user' color="#FFFFFF"></box-icon>
+            </div>
+            <hr>
+            <main>
+                <div class="search-bar-box">
+                    <div class="search-container">
+                        <input id="search-bar" placeholder="search music" class="search-bar" type="text">
+                        <button id="search" class="search" type="submit"><box-icon name='search-alt-2'></box-icon></button>
+                    </div>
+                    <div id="sep" class="serparator-animation"></div>
+                </div>
+                <div class="container">
+                    <section id="video">
+
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+
+        document.getElementById("search-bar").addEventListener("focus", start);
+
+        document.getElementById("search-bar").addEventListener("mouseover", start);
+
+        document.getElementById("search-bar").addEventListener("mouseout", end);
+
+        document.getElementById("search").addEventListener("mouseover", start);
+
+        document.getElementById("search").addEventListener("mouseout", end);
+
+        function start() {
+            document.getElementById("sep").style.width = "60%";
+        }
+
+        function end() {
+            document.getElementById("sep").style.width = "0%";
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+
+            var key = ["AIzaSyDRFHRK9aVquvdbv939iBH_3F1BeG63PZE"];
+            var playlistId = 'PL2fnLUTsNyq7A335zB_RpOzu7hEUcSJbB';
+            var URL = 'https://www.googleapis.com/youtube/v3/playlistItems';
+
+
+            var options = {
+                part: 'snippet',
+                key: key,
+                maxResults: 20,
+                playlistId: playlistId
+            }
+
+            loadVids();
+
+            function loadVids() {
+                $.getJSON(URL, options, function (data) {
+                    var id = data.items[0].snippet.resourceId.videoId;
+                    mainVid(id);
+                    resultsLoop(data);
+                });
+            }
+
+            function mainVid(id) {
+                $('#video').html(`<iframe width="560" height="315" src="https://www.youtube.com/embed/${id}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`);
+            }
+
+
+            function resultsLoop(data) {
+
+                $.each(data.items, function (i, item) {
+
+                    var thumb = item.snippet.thumbnails.medium.url;
+                    var title = item.snippet.title;
+                    var desc = item.snippet.description.substring(0, 100);
+                    var vid = item.snippet.resourceId.videoId;
+
+
+                    $('main').append(`<article class="item" data-key="${vid}">
+                    <img src="${thumb}" alt="" class="thumb">
+                    <div class="details">
+                        <h4>${title}</h4>
+                        <p>${desc}</p>
+                    </div>
+                    </article>`);
+                });
+            }
+
+            // CLICK EVENT
+            $('main').on('click', 'article', function () {
+                var id = $(this).attr('data-key');
+                mainVid(id);
+            });
+
+
+        });
+    </script>
+</body>
+</html>
